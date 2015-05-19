@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!--
+<BODY>
+This is for USC disclaimer
+</BODY>
+-->
+<script type="text/javascript"> 
+function generateHTML(xmlDoc)
+ {  ELEMENT_NODE = 1;
+    root=xmlDoc.documentElement;
+    html_text="";
+    listings=xmlDoc.getElementsByTagName("Listing");
+    if(listings.length==0) { alert("There is no Listing in XML"); return(null); }
+    locations=xmlDoc.getElementsByTagName("Location");
+    listingdetails=xmlDoc.getElementsByTagName("ListingDetails");
+    html_text="<html><head><title>XML Parse Result</title></head><body>";
+    html_text+="<h2>Real Estate Listings</h2>";
+    html_text+="<table border=3>";
+    html_text+="<tbody>";
+    x=200; y=150;
+    for(i=0;i<listings.length;i++)
+      {   html_text+="<tr><th colspan=7>Listing<th></tr>"; 
+          if(listings.item(i).nodeType==ELEMENT_NODE)
+          {  locationnode=locations.item(i).childNodes;
+             listingdetailnode=listingdetails.item(i).childNodes;
+             html_text+="<tr>"; 
+             html_text+="<th>Location</th>";
+             for(j=0;j<locationnode.length;j++)
+              {  if(locationnode.item(j).nodeType==ELEMENT_NODE)
+                  { header=locationnode.item(j).nodeName;   
+                    if(header=="StreetAddress") header="Street";
+                    html_text+="<th>"+header+"</th>";
+                  }
+              }
+              html_text+="</tr>"; 
+              html_text+="<tr>"; 
+              html_text+="<td>&nbsp;</td>"; 
+              for(k=0;k<locationnode.length;k++)
+                {  if(locationnode.item(k).nodeType==ELEMENT_NODE)
+                  {  if (locationnode.item(k).firstChild!=null)
+                     { html_text+="<td>"+locationnode.item(k).firstChild.nodeValue+"</td>";  }
+                     else {  html_text+="<td>&nbsp;</td>"; }
+                  }
+                }
+              html_text+="</tr>";
+              html_text+="<tr>"; 
+              html_text+="<th>Details</th>";
+              for(m=0;m<listingdetailnode.length;m++)
+                {  if(listingdetailnode.item(m).nodeType==ELEMENT_NODE)
+                  {  header1=listingdetailnode.item(m).nodeName; 
+                     if(header1=="ListingUrl") header1="Listing URL";
+                     if(header1=="Image")
+                     { html_text+="<th colspan=3>"+header1+"</th>"}
+                     else { html_text+="<th>"+header1+"</th>"; }
+                  }
+                }
+              html_text+="</tr>";  
+              html_text+="<tr>";
+              html_text+="<td>&nbsp;</td>";   
+              for(n=0;n<listingdetailnode.length;n++)
+               {  if(listingdetailnode.item(n).nodeType==ELEMENT_NODE)
+                   {  if (listingdetailnode.item(n).firstChild!=null)
+                      { if(listingdetailnode.item(n).nodeName=="Image")
+                       { html_text+="<td colspan=3><img src='"+listingdetailnode.item(n).firstChild.nodeValue+"' width='"+x+"' height='"+y+"'></td>";     }
+                        else if(listingdetailnode.item(n).nodeName=="ListingUrl")
+                        { html_text+="<td><a href='"+listingdetailnode.item(n).firstChild.nodeValue+"'>Link to lsting</a></td>";     }
+                        else {
+                         html_text+="<td>"+listingdetailnode.item(n).firstChild.nodeValue+"</td>";  }
+                       }
+                       else {  html_text+="<td>&nbsp;</td>";  }
+                   }
+                }
+                html_text+="</tr>";     
+        }  
+      }
+      html_text+="</tbody>";
+      html_text+="</table>";
+      html_text+="</body></html>"; 
+  }   
+
+function viewXML(what)
+ { var URL=what.URL.value;
+   if (URL=="") { alert("Text box is left empty"); return(null); }
+   function loadXML(url) 
+  {   if (window.XMLHttpRequest)
+        { xmlhttp=new XMLHttpRequest(); }
+      else { xmlhttp=new ActiveXObject("Microsoft.XMLHTTP"); }
+      xmlhttp.onreadystatechange=function() {
+      if (xmlhttp.readyState==4&&xmlhttp.status==404) {alert(" File does not exist"); return(null); }
+         }
+      xmlhttp.open('GET', url, false);
+      xmlhttp.send(); 
+      xmlDoc=xmlhttp.responseXML;
+      return xmlDoc;   
+  }
+  xmlDoc=loadXML(URL);
+  if (window.ActiveXObject) 
+  {  if (xmlDoc.parseError.errorCode != 0) 
+      {  alert("Error in XML file"); return(null); 
+      } 
+      else {  generateHTML(xmlDoc);
+              if(html_text!="")
+              { var hWin = window.open("", "", "height=800,width=800,scrollbars=yes");
+                hWin.document.write(html_text);  }
+            }
+  } 
+  else 
+  {   if (xmlDoc.documentElement.nodeName=="parsererror")
+      { alert("Error in XML file"); return(null); }
+      else{
+      xmlDoc.onload=generateHTML(xmlDoc);
+      if(html_text!="")
+      { var hWin = window.open("", "", "height=800,width=800,scrollbars=yes");
+      hWin.document.write(html_text);  }
+           }
+  }
+      hWin.document.close();
+ }
+
+</script>
+</head>
+
+<body>
+<br><br><br>
+<center>
+<b>Enter URL for Real Estate Catalog XML File</b>
+<br><br>
+<form name="myform" method="POST" id="location">
+<input type="text" name="URL" value=""/>
+<br><br>
+<input type="button" name="submit" value="Submit Query" onClick="viewXML(this.form)" />
+</form>
+</center>
+</body>
+</html>
