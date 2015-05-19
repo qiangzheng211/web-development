@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HW8</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css"/>
+
+    <!-- BootstrapValidator CSS -->
+    <link rel="stylesheet" href="http://cdn.jsdelivr.net/jquery.bootstrapvalidator/0.5.0/css/bootstrapValidator.min.css"/>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="http://cdn.jsdelivr.net/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+    <!-- BootstrapValidator JS -->
+    <script type="text/javascript" src="http://cdn.jsdelivr.net/jquery.bootstrapvalidator/0.5.0/js/bootstrapValidator.min.js"></script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCoF3BkKA5dPzLTXSAVFiItGuzDZ1w8GOY"></script>
+    <!-- facebook meta -->
+    <meta property="fb:app_id" content="970543452972428" />
+    <meta property="og:url" content="http://cs-server.usc.edu:28261/hw8/myyhomework8.html" />
+    <meta property="og:type" content="website" />
+
+    <style>
+     body  { background: url("http://www.neovisual.cz/files/V0779-d9.jpg") no-repeat center center fixed;
+            background-size: 100% 100%; }
+     .bar { color:white; background-color:#f5ae53;}
+     .colorcharacter { color:#f5ae53; font-size:15px; } 
+     #logo {width:130px; height:40px; position:relative; margin-left:180px; border-radius:8px}
+     #map_canvas {   width: 100%;   height: 350px; border-color:#f5ae53; border-style:solid;}
+     #share_button { background-color:#435f9c; color:white; width:110px; height:30px; font-size:10px; border-radius:8px;}
+     #carouselbox { width:100%; height:auto; border-color:#f5ae53; border-style:solid;}
+     #tablebox { width:100%; border-color:#f5ae53; border-style:solid;}
+     .carousel-caption { position: absolute; right: 0; bottom: 0; left: 0; background-color: #838383; opacity: 0.7;}
+     .carousel-caption p { position: absolute; left:10px;  top:0; font-size:2vw; font-weight: bold;}
+     .carouseltext { position: absolute; left:10px; font-size:1.5vw;}
+     .carousel-indicators { position: absolute; bottom:0px; left:90%; }
+     .carousel-indicators .active { background-color: #f5ae53; border-color:#f5ae53; border-style:solid;}
+     .form-group {vertical-align:top!important;}
+     .help-block { text-align:right;}
+      @-moz-document url-prefix() {
+         fieldset { display: table-cell; }
+        }
+    </style>
+  </head>
+
+   <body>
+   <!-- facebook JS-->
+   <div id="fb-root"></div>
+   <script>
+     window.fbAsyncInit = function() {
+     FB.init({
+      appId  : '970543452972428',
+      status : true, // check login status
+      cookie : true, // enable cookies to allow the server to access the session
+      xfbml  : true  // parse XFBML
+      });
+      };
+     (function() {
+      var e = document.createElement('script');
+      e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
+      e.async = true;
+      document.getElementById('fb-root').appendChild(e);
+      }());
+    </script>
+
+    <script type="text/javascript">
+    function fbPost(){
+     FB.ui(
+     {
+       method: 'feed',
+       name: obj.result.street+',&nbsp;'+obj.result.city+',&nbsp;'+obj.result.state+"-"+obj.result.zipcode,
+       link: obj.result.homedetails,
+       picture: obj.chart.url1year,
+       caption: 'Property Information from Zillow.com',
+       description: 'Last Sold Price:&nbsp;'+obj.result.lastSoldPrice+',&nbsp;30 Days Overall Change:'+obj.result.estimateValueChangeSign+obj.result.estimateValueChange
+       },
+      function(response){
+      if(response && response.post_id) {
+        alert("Posted Successfully");
+      }
+      else { alert("Post Fail"); }
+     });
+     }
+   </script>
+   <!-- Hidden Html -->
+   <script type="text/javascript">
+     $(document).ready(function(){
+      $("#tabcontainer").children().hide();
+      $("#nomatch").hide();
+    });
+   </script>
+
+    <!-- Input Form -->
+    <div class="container">
+      <br>
+      <p class="colorcharacter" style="font-size:20px;">Search Your Property Here</p><br>
+      <form id="myform" method="post" class="form-inline" role="form" onsubmit="return do_request()">
+        <div class="form-group">
+           <label for="street" class="colorcharacter">Street Address*:&nbsp;</label>
+           <input type="text" class="form-control" name="street" id="street" value="" placeholder="Address" />
+        </div>
+        <div class="form-group">
+           <label for="city" class="colorcharacter">&nbsp;&nbsp;City*:&nbsp;</label>
+           <input type="text" class="form-control" name="city" id="city" value="" placeholder="City"/>
+        </div>
+        <div class="form-group">
+           <label for="state" class="colorcharacter" >&nbsp;&nbsp;State*:&nbsp;</label><select class="form-control" name="state" id="state">
+                                              <option selected hidden value=""></option>
+                                              <option value="AL">AL</option>
+                                              <option value="AK">AK</option>
+                                              <option value="AR">AR</option>
+                                              <option value="AZ">AZ</option>
+                                              <option value="CA">CA</option>
+                                              <option value="CO">CO</option>
+                                              <option value="CT">CT</option>
+                                              <option value="DC">DC</option>
+                                              <option value="DE">DE</option>
+                                              <option value="FL">FL</option>
+                                              <option value="GA">GA</option>
+                                              <option value="HI">HI</option>
+                                              <option value="IA">IA</option>
+                                              <option value="ID">ID</option>
+                                              <option value="IL">IL</option>
+                                              <option value="IN">IN</option>
+                                              <option value="KS">KS</option>
+                                              <option value="KY">KY</option>
+                                              <option value="LA">LA</option>
+                                              <option value="MA">MA</option>
+                                              <option value="MD">MD</option>
+                                              <option value="ME">ME</option>
+                                              <option value="MI">MI</option>
+                                              <option value="MN">MN</option>
+                                              <option value="MO">MO</option>
+                                              <option value="MS">MS</option>
+                                              <option value="MT">MT</option>
+                                              <option value="NC">NC</option>
+                                              <option value="ND">ND</option>
+                                              <option value="NE">NE</option>
+                                              <option value="NH">NH</option>
+                                              <option value="NJ">NJ</option>
+                                              <option value="NM">NM</option>
+                                              <option value="NV">NV</option>
+                                              <option value="NY">NY</option>
+                                              <option value="OH">OH</option>
+                                              <option value="OK">OK</option>
+                                              <option value="OR">OR</option>
+                                              <option value="PA">PA</option>
+                                              <option value="RI">RI</option>
+                                              <option value="SC">SC</option>
+                                              <option value="SD">SD</option>
+                                              <option value="TN">TN</option>
+                                              <option value="TX">TX</option>
+                                              <option value="UT">UT</option>
+                                              <option value="VA">VA</option>
+                                              <option value="VT">VT</option>
+                                              <option value="WA">WA</option>
+                                              <option value="WI">WI</option>
+                                              <option value="WV">WV</option>
+                                              <option value="WY">WY</option>   
+                                      </select>
+        </div><div class="form-group">
+        &nbsp;&nbsp;<button class="btn btn-default" style="background-color:#f5ae53; color:white;" type="submit">Submit</button></div><div class="form-group">
+        <a href="http://www.zillow.com/" target="_blank"><img id="logo" src="http://www.zillow.com/widgets/GetVersionedResource.htm?path=/static/logos/Zillowlogo_150x40.gif" alt="Zillow Real Estate Search" /></a></div>
+      </form>
+    </div>
+    <br>
+    <div class="container">
+    <hr style="width:100%;">
+    </div>
+    <div id="nomatch"></div><br>
+
+    <!-- Tabs -->
+    <div class="container" id="tabcontainer">
+        <ul class="nav nav-tabs" role="tablist" id="tabs">
+          <li class="active"><a class="bar" href="#basicInfo" role="tab" data-toggle="tab">Basic Info</a></li>
+          <li><a class="bar" href="#map" role="tab" data-toggle="tab" id="maptab" >Map</a></li>
+          <li><a class="bar" href="#hisZes" role="tab" data-toggle="tab">Historical Zestimates</a></li>
+        </ul> 
+    <!-- Tab Content -->
+       <div class="tab-content">
+            <div class="tab-pane active" id="basicInfo">
+              <div id="tablebox" class="table-responsive" style="background-color:white;">
+                <table class="table table-striped" id="mytable" style="background-color:white; width:100%; height:100%;">
+                </table>
+              </div>
+            </div>
+            <div class="tab-pane" id="map">
+                <div id="map_canvas"></div>
+            </div>
+            <div class="tab-pane" id="hisZes">
+    <!-- Carousel
+    ================================================== -->
+    <div id="myCarousel" class="carousel slide" data-ride="carousel" style="background-color:white;">
+      <!-- Indicators -->
+      <div id="carouselbox">
+      <ol class="carousel-indicators" >
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="1"></li>
+        <li data-target="#myCarousel" data-slide-to="2"></li>
+      </ol>
+      <div class="carousel-inner" role="listbox">
+        <div class="item active">
+          <div id="image1" align='center'></div>
+              <div class="carousel-caption">
+                <p>Historcal Zestimates for the past 1 year</p><br>
+                <div id="carousel-address1" class="carouseltext"></div>
+              </div>
+         </div>
+        <div class="item">
+          <div id="image2" align='center'></div>
+            <div class="carousel-caption">
+               <p>Historcal Zestimates for the past 5 year</p><br>
+               <div id="carousel-address2" class="carouseltext"></div>
+          </div>
+        </div>
+        <div class="item">
+          <div id="image3" align='center'></div>
+            <div class="carousel-caption">
+               <p>Historcal Zestimates for the past 10 year</p><br>
+               <div id="carousel-address3" class="carouseltext"></div>
+            </div>
+        </div>
+      </div>
+      <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev"><span class="glyphicon glyphicon-chevron-left"></span></a>
+      <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a>
+     </div>
+   </div>
+    <!-- /.carousel -->
+          </div>
+      </div>
+       <center>
+            <p style="color:white;">&#169; Zillow, Inc.,2006-2014. Use is subject to <a class="colorcharacter" href='http://www.zillow.com/corp/Terms.htm' target='_blank'>Terms of Use</a><br>
+            <a class="colorcharacter" href='http://www.zillow.com/zestimate/' target='_blank'>What's a Zestimate?</a></p>
+       </center>
+     </div>
+
+    <!-- emptyCheck And ajax -->
+    <script type="text/javascript">
+     var obj;
+     $(document).ready(function(){
+      $('#myform').bootstrapValidator({ 
+        submitButtons:'button[type="submit"]',
+        fields: {
+           street: {
+                validators: {
+                    notEmpty: {
+                        message: 'This field is required'
+                    }
+                  }
+                },
+           city: {
+                validators: {
+                    notEmpty: {
+                        message: 'This field is required'
+                      }
+                    }
+                  },
+           state: {
+                validators: {
+                    notEmpty: {
+                        message: 'This field is required'
+                    }
+                   }
+                 }
+               }
+               });
+   });
+      function arrow(sign)
+        {  arrowurl="http://www-scf.usc.edu/~csci571/2014Spring/hw6/up_g.gif";
+              if(sign == "-")
+            {  arrowurl="http://www-scf.usc.edu/~csci571/2014Spring/hw6/down_r.gif"; }
+                return arrowurl;
+            }
+
+      function do_request() 
+      { if($("#street").val()&&$("#city").val()&&$("#state").val()!="")
+        {
+        $.ajax({
+               url: "http://qiangzheng-env.elasticbeanstalk.com/",
+               crossDomain:true,
+               data:{ "streetInput":$("#street").val(),
+                      "cityInput":$("#city").val(),
+                      "stateInput":$("#state").val() },
+               type:"GET",
+               dataType: 'json',
+               success:function(output)
+                        {   obj = output;
+                          $("#nomatch").hide();
+                          $("#tabcontainer").children().show();
+                          $("#mytable").html("<tr><td colspan=3>See more details for&nbsp;<a style='color:#f5ae53;' href='"+obj.result.homedetails+"'target='_blank'>"+obj.result.street+",&nbsp;"+obj.result.city+",&nbsp;"+obj.result.state+"-"+obj.result.zipcode+"</a>&nbsp;on Zillow</td><td align='right'><button id='share_button' onclick='fbPost()'>Share on <b>facebook</b></button></td></tr><tr><td>Property Type:</td><td align='right'>"+obj.result.useCode+"</td><td>Last Sold Price:</td><td align='right'>"+obj.result.lastSoldPrice+"</td></tr><tr><td>Year Built:</td><td align='right'>"+obj.result.yearBuilt+"</td><td>Last Sold Date:</td><td align='right'>"+obj.result.lastSoldDate+"</td></tr><tr><td>Lot Size:</td><td align='right'>"+obj.result.lotSizeSqFt+"</td><td>Zestimate &#174; Property Estimate as of&nbsp;"+obj.result.estimateLastUpdate+":</td><td align='right'>"+obj.result.estimateAmount+"</td></tr><tr><td>Finished Area:</td><td align='right'>"+obj.result.finishedSqFt+
+                            "</td><td>30 Days Overall Change:</td><td align='right'><img src='"+arrow(obj.result.estimateValueChangeSign)+"'>"+obj.result.estimateValueChange+"</td></tr><tr><td>Bathrooms:</td><td align='right'>"+obj.result.bathrooms+
+                            "</td><td>All Time Property Range:</td><td align='right'>"+obj.result.estimateValuationRangeLow+"-"+obj.result.estimateValuationRangeHigh+"</td></tr><tr><td>Bedrooms:</td><td align='right'>"+obj.result.bedrooms+
+                            "</td><td>Rent Zestimate &reg; Valuation as of&nbsp;"+obj.result.restimateLastUpdate+":</td><td align='right'>"+obj.result.restimateAmount+"</td></tr><tr><td>Tax Assessment Year:</td><td align='right'>"+obj.result.taxAssessmentYear+"</td><td>30 Days Rent Change:</td><td align='right'><img src='"+arrow(obj.result.restimateValueChangeSign)+"'>"+obj.result.restimateValueChange+"</td></tr><tr><td>Tax Assessment:</td><td align='right'>"+obj.result.taxAssessment+"</td><td>All Time Rent Range:</td><td align='right'>"+obj.result.restimateValuationRangeLow+"-"+obj.result.restimateValuationRangeHigh+"</td></tr>");  
+
+                           $("#carousel-address1").html(obj.result.street+",&nbsp;"+obj.result.city+",&nbsp;"+obj.result.state+"-"+obj.result.zipcode);
+                           $("#carousel-address2").html(obj.result.street+",&nbsp;"+obj.result.city+",&nbsp;"+obj.result.state+"-"+obj.result.zipcode);    
+                           $("#carousel-address3").html(obj.result.street+",&nbsp;"+obj.result.city+",&nbsp;"+obj.result.state+"-"+obj.result.zipcode); 
+
+                           $("#image1").html("<img class='img-responsive' src='"+obj.chart.url1year+"' alt='First slide'>");
+                           $("#image2").html("<img class='img-responsive' src='"+obj.chart.url5years+"' alt='Second slide'>"); 
+                           $("#image3").html("<img class='img-responsive' src='"+obj.chart.url10years+"' alt='Third slide'>");                 
+                            },
+                    error: function() { 
+                       $("#tabcontainer").children().hide();
+                       $("#nomatch").show();
+                       $("#nomatch").html("<p align='center' style='color:red; font-size:25px;'>No exact match found -- Verify that the given address is correct.</p>"); }
+               }); 
+        return false;  
+        } 
+      }
+     </script>
+    
+    <!-- Google Map -->
+    <script>
+      var map;
+      var marker;
+
+      function initialize() {
+        var myCenter = new google.maps.LatLng(obj.result.latitude, obj.result.longitude);
+        var mapCanvas = document.getElementById('map_canvas');
+        var mapOptions = {
+          center: myCenter,
+          zoom: 16,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        }
+        map = new google.maps.Map(mapCanvas, mapOptions)
+        marker=new google.maps.Marker({
+            position:myCenter,
+                 });
+        var simplecontent = "<table><tr><td rowspan='4'><img style='width:100px; height:100px;' src='"+obj.image.imag1+"'></td></tr><tr><td align='right'>"+obj.result.estimateAmount+"</td></tr><tr><td align='right'>"+obj.result.bedrooms+"bd,&nbsp;"+obj.result.bathrooms+"ba</td></tr><tr><td align='right'>"+obj.result.lotSizeSqFt+"&nbsp;sqft</td></tr></table>";
+
+        var detailcontent = "<table><tr><td rowspan='7'><img style='width:100px; height:100px;' src='"+obj.image.imag1+"'></td></tr><tr><td>Last Sold Price:</td><td align='right'>"+obj.result.lastSoldPrice+"</td></tr><tr><td>Last Sold Date:</td><td align='right'>"+obj.result.lastSoldDate+"</td><tr><td>Bd&nbsp;&amp;&nbsp;Ba:</td><td align='right'>"+obj.result.bedrooms+'bd,&nbsp;'+obj.result.bathrooms+"ba</td></tr><tr><td>Lot Size:</td><td align='right'>"+obj.result.lotSizeSqFt+"&nbsp;sqft</td></tr><tr><td>30 Days Overall Change:</td><td align='right'>"+obj.result.estimateValueChangeSign+obj.result.estimateValueChange+"</td></tr><tr><td>30 Days Rent Change:</td><td align='right'>"+obj.result.restimateValueChangeSign+obj.result.restimateValueChange+'</td></tr></table>';
+
+        var simpleinfowindow = new google.maps.InfoWindow({
+        content: simplecontent
+        });
+        var detailinfowindow = new google.maps.InfoWindow({
+        content: detailcontent
+        });
+
+        marker.setMap(map);
+        google.maps.event.addDomListener(marker, 'mouseover', function() {
+        simpleinfowindow.open(map,marker);
+        });
+        google.maps.event.addListener(marker, 'mouseout', function() {
+        simpleinfowindow.close();
+        });
+        google.maps.event.addDomListener(marker, 'click', function() {
+        simpleinfowindow.close();
+        detailinfowindow.open(map,marker);
+        });
+      }
+
+       $('#maptab').on('shown.bs.tab', function (e) { 
+        initialize(); 
+       });
+       google.maps.event.addDomListener(window, "resize", function() {
+       var center = map.getCenter();
+       google.maps.event.trigger(map, "resize");
+       map.setCenter(center);   
+       });                                    
+    </script>
+  </body>
+
+</html>
